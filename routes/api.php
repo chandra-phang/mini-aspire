@@ -1,10 +1,10 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LoanController;
+use App\Http\Controllers\ScheduledRepaymentController;
 use App\Http\Controllers\Api\AuthController;
-
+use App\Models\ScheduledRepayment;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,4 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // LoanController - Admin
     Route::get('admin/loans', [LoanController::class, 'admin_index']);
     Route::patch('admin/loans/{id}/approve', [LoanController::class, 'approve']);
+
+    // ScheduledRepayment
+    Route::post('scheduled_repayments/{id}/pay', [ScheduledRepaymentController::class, 'pay']);
 });
