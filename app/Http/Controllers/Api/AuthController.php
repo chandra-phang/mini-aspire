@@ -24,8 +24,7 @@ class AuthController extends Controller
             $errors = $validator->errors();
             return response()->json([
                 'success' => false,
-                'message' => 'validation error',
-                'errors' => $errors
+                'message' => $errors
             ], 400);
         }
         // Check if validation pass then create user and auth token. Return the auth token
