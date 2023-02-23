@@ -5,17 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Loan extends Model
+class ScheduledRepayment extends Model
 {
     use HasFactory;
 
-    protected $table = 'loans';
+    protected $table = 'scheduled_repayments';
     protected $fillable = [
+        'loan_id',
         'amount_required',
-        'loan_term',
+        'amount_paid',
+        'due_date',
         'status',
-        'customer_id',
-        'approver_id',
-        'approved_at',
     ];
 }
