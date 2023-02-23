@@ -33,14 +33,14 @@ class AuthController extends Controller
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
+                'is_admin' => $request->isAdmin,
                 'password' => Hash::make($request->password)
             ]);
             $token = $user->createToken('auth_token')->plainTextToken;
         
             return response()->json([
                 'success' => true,
-                'access_token' => $token,
-                'token_type' => 'Bearer',
+                'message' => 'User created successfully',
             ]);
         }
     }
@@ -71,7 +71,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => false,
-            'message' => 'You are not authorized to access this page, please register or login first'
+            'message' => 'You are not authorized to access this page'
         ], 401);
     }
 }
