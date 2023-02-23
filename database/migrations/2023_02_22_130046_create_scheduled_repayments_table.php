@@ -14,13 +14,16 @@ return new class extends Migration
         Schema::create('scheduled_repayments', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('loan_id')->length(20)->unsigned();
-            $table->integer('amount_required');
-            $table->integer('amount_paid');
-            $table->string('due_date', 20);
+            $table->bigInteger('customer_id')->length(20)->unsigned();
+            $table->float('payable_amount', 20, 2);
+            $table->float('paid_amount', 20, 2);
+            $table->dateTime('due_date', $precision = 0);
+            $table->dateTime('paid_at', $precision = 0)->nullable();
             $table->string('status', 20);
             $table->timestamps();
 
             $table->foreign('loan_id')->references('id')->on('loans');
+            $table->foreign('customer_id')->references('id')->on('users');
         });
     }
 
