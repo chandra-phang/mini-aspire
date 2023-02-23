@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->boolean('is_admin')->default(0);
             $table->string('password');
+            $table->float('cash_balance', 20, 2)->default(0);
             $table->rememberToken();
             $table->timestamps();
         });
