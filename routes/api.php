@@ -22,8 +22,15 @@ Route::post('auth/login', [AuthController::class, 'login']);
 Route::get('home', [AuthController::class, 'home']) ->name('home');
 
 Route::middleware('auth:sanctum')->group(function () {
+    // AuthController
     Route::get('/me', [AuthController::class, 'me']);
-    Route::post('loans', [LoanController::class, 'store']);
-    Route::get('loans', [LoanController::class, 'index']);
+
+    // LoanController - Customer
+    Route::get('loans', [LoanController::class, 'customer_index']);
     Route::get('loans/{id}', [LoanController::class, 'show']);
+    Route::post('loans', [LoanController::class, 'store']);
+
+    // LoanController - Admin
+    Route::get('admin/loans', [LoanController::class, 'admin_index']);
+    Route::patch('admin/loans/{id}/approve', [LoanController::class, 'approve']);
 });
