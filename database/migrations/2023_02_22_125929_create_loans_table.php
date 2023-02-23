@@ -16,10 +16,13 @@ return new class extends Migration
             $table->integer('amount_required');
             $table->integer('loan_term');
             $table->string('status', 20);
-            $table->string('customer_id', 100);
-            $table->string('approver_id', 100)->nullable();
+            $table->bigInteger('customer_id')->length(20)->unsigned();
+            $table->bigInteger('approver_id')->length(20)->unsigned()->nullable();
             $table->timestamp('approved_at', $precision = 0)->nullable();
             $table->timestamps();
+
+            $table->foreign('customer_id')->references('id')->on('users');
+            $table->foreign('approver_id')->references('id')->on('users');
         });
     }
 

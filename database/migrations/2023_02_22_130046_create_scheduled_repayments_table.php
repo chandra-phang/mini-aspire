@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('scheduled_repayments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('loan_id');
+            $table->bigInteger('loan_id')->length(20)->unsigned();
             $table->integer('amount_required');
             $table->integer('amount_paid');
             $table->string('due_date', 20);
