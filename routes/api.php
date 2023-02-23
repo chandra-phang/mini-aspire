@@ -17,23 +17,23 @@ use App\Models\ScheduledRepayment;
 |
 */
 
-Route::post('auth/register', [AuthController::class, 'register']);
-Route::post('auth/login', [AuthController::class, 'login']);
-Route::get('home', [AuthController::class, 'home']) ->name('home');
+Route::post('auth/register', [AuthController::class, 'register'])->name('auth-register');
+Route::post('auth/login', [AuthController::class, 'login'])->name('auth-login');
+Route::get('home', [AuthController::class, 'home'])->name('home');
 
 Route::middleware('auth:sanctum')->group(function () {
     // AuthController
-    Route::get('/me', [AuthController::class, 'me']);
+    Route::get('/me', [AuthController::class, 'me'])->name('auth-me');
 
     // LoanController - Customer
-    Route::get('loans', [LoanController::class, 'customer_index']);
-    Route::get('loans/{id}', [LoanController::class, 'show']);
-    Route::post('loans', [LoanController::class, 'store']);
+    Route::get('loans', [LoanController::class, 'customer_index'])->name('loan.customer-list');
+    Route::get('loans/{id}', [LoanController::class, 'show'])->name('loan.show');
+    Route::post('loans', [LoanController::class, 'store'])->name('loan.store');
 
     // LoanController - Admin
-    Route::get('admin/loans', [LoanController::class, 'admin_index']);
-    Route::patch('admin/loans/{id}/approve', [LoanController::class, 'approve']);
+    Route::get('admin/loans', [LoanController::class, 'admin_index'])->name('loan.admin-list');
+    Route::patch('admin/loans/{id}/approve', [LoanController::class, 'approve'])->name('loan.approve');
 
     // ScheduledRepayment
-    Route::post('scheduled_repayments/{id}/pay', [ScheduledRepaymentController::class, 'pay']);
+    Route::post('scheduled_repayments/{id}/pay', [ScheduledRepaymentController::class, 'pay'])->name('scheduled-repayment.pay');
 });

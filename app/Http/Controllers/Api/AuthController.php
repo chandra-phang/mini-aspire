@@ -33,7 +33,6 @@ class AuthController extends Controller
                 'is_admin' => $request->isAdmin,
                 'password' => Hash::make($request->password)
             ]);
-            $token = $user->createToken('auth_token')->plainTextToken;
         
             return ApiFormatter::response(true, 'User created successfully');
         }

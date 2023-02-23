@@ -49,8 +49,9 @@ class LoanService
         }
     }
 
-    public function find(string $id) : Loan
+    public function find(string $id) : Loan|null
     {
+        $loan = null;
         // Admin allowed to see all loans but customer only can see their own loans
         if (auth()->user()->is_admin) {
             $loan = Loan::Find($id);
@@ -63,7 +64,6 @@ class LoanService
                 $loan = $loans[0];
             }
         }
-
         return $loan;
     }
 
