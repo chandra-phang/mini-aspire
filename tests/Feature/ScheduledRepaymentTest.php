@@ -12,6 +12,23 @@ class ScheduledRepaymentTest extends TestCase
 {
     use RefreshDatabase;
     
+    public function test_index_returns_correct_response(): void
+    {
+        // Create customer and loans
+        $customer = User::factory()->create();
+        $loan = Loan::factory()->create(['customer_id' => $customer->id]);
+        ScheduledRepayment::factory()->count(2)->create([
+            'loan_id' => $loan->id,
+            'customer_id' => $customer->id,
+        ]);
+
+        $response = $this->actingAs($customer)->getJson(route('scheduled-repayment.list'));
+        $res = $response->json();
+
+        $this->assertEquals(true, $res['success']);
+        $this->assertEquals(2, count($res['data']));
+    }
+    
     public function test_pay_returns_correct_response(): void
     {
         // Create customer and loans
@@ -25,9 +42,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(true, $res['success']);
         $this->assertEquals("ScheduledRepayment paid successfully", $res['message']);
 
@@ -61,9 +78,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(true, $res['success']);
         $this->assertEquals("ScheduledRepayment paid successfully", $res['message']);
 
@@ -85,9 +102,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => 'invalid-id']), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("ScheduledRepayment not found", $res['message']);
     }
@@ -105,9 +122,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("Loan not approved yet", $res['message']);
     }
@@ -125,9 +142,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("Loan is already PAID", $res['message']);
     }
@@ -145,9 +162,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("ScheduledRepayment is already PAID", $res['message']);
     }
@@ -165,9 +182,9 @@ class ScheduledRepaymentTest extends TestCase
         // Pay scheduledPayment
         $body = ['amount' => 100];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
+        $res = $response->json();
 
         // Assert response
-        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("Amount is not enough", $res['message']);
     }

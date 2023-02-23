@@ -35,5 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('admin/loans/{id}/approve', [LoanController::class, 'approve'])->name('loan.approve');
 
     // ScheduledRepayment
+    Route::get('scheduled_repayments', [ScheduledRepaymentController::class, 'index'])->name('scheduled-repayment.list');
     Route::post('scheduled_repayments/{id}/pay', [ScheduledRepaymentController::class, 'pay'])->name('scheduled-repayment.pay');
 });
