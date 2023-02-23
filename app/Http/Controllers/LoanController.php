@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 
 use App\Helpers\ApiFormatter;
+use App\Http\Requests\StoreLoanRequest;
 use App\Services\LoanService;
 use App\Models\Loan;
 
@@ -32,19 +32,14 @@ class LoanController extends Controller
     }
 
     // Store a newly created loan in storage.
-    public function store(Request $request, LoanService $service)
+    public function store(Request $request, LoanService $service, StoreLoanRequest $validator)
     {
-        // Validated request body
-        $validate = Validator::make($request->all(), 
-        [
-            'total_amount' => 'required',
-            'loan_term' => 'required',
-        ]);
-
-        if($validate->fails()){
-            return ApiFormatter::response(false, $validate->errors(), 422);
+        // Validate request body
+        list($valid, $errorsMsg) = $validator->validate($request);
+        if (!$valid) {
+            return ApiFormatter::response(false, $errorsMsg, 422);
         }
-
+            
         // Create loan
         $loan = $service->create($request);
         if (!$loan) {
