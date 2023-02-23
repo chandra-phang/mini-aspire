@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
+use App\Helpers\ApiFormatter;
 use App\Services\LoanService;
-
 use App\Models\Loan;
 
 
@@ -15,28 +15,20 @@ class LoanController extends Controller
     // Display a listing of the loans.
     public function admin_index()
     {
-        if (!auth()->user()->is_admin){   
-            return response()->json([
-                "success" => false,
-                "message" => "You are not authorized to access this page",
-            ], 401);
+        if (!auth()->user()->is_admin){
+            $message = "You are not authorized to access this page";
+            return ApiFormatter::response(false, $message, 401);
         }
 
         $loans = Loan::all();
-        return response()->json([
-            "success" => true,
-            "data" => $loans,
-        ], 200);
+        return ApiFormatter::responseWithData(true, $loans);
     }
 
     // Display a listing of the loans by customer_id.
     public function customer_index()
     {
         $loans = Loan::Where('customer_id', auth()->user()->id)->get();
-        return response()->json([
-            "success" => true,
-            "data" => $loans,
-        ], 200);
+        return ApiFormatter::responseWithData(true, $loans);
     }
 
     // Store a newly created loan in storage.
@@ -50,28 +42,18 @@ class LoanController extends Controller
         ]);
 
         if($validate->fails()){
-            return response()->json([
-                'success' => false,
-                'message' => $validate->errors()
-            ], 422);
+            return ApiFormatter::response(false, $validate->errors(), 422);
         }
 
         // Create loan
         $loan = $service->create($request);
         if (!$loan) {
-            return response()->json([
-                'status' => false,
-                'message' => 'Failed to create loan',
-            ], 422);
+            return ApiFormatter::response(false, 'Failed to create loan', 422);
         }
 
         // Create ScheduledRepayment
         $service->createScheduledRepayment($loan);
-
-        return response()->json([
-            'status' => true,
-            'data' => $loan,
-        ], 200);
+        return ApiFormatter::responseWithData(true, $loan);
     }
 
     // Display the specified loan.
@@ -79,15 +61,9 @@ class LoanController extends Controller
     {   
         $loan = $service->find($id);
         if ($loan) {
-            return response()->json([
-                "success" => true,
-                "data" => $loan,
-            ], 200);
+            return ApiFormatter::responseWithData(true, $loan);
         } else {
-            return response()->json([
-                "success" => false,
-                "message" => "Loan not found",
-            ], 404);
+            return ApiFormatter::response(false, "Loan not found", 404);
         }
     }
     
@@ -96,15 +72,9 @@ class LoanController extends Controller
     {
         list($success, $message) = $service->approve($id);
         if ($success) {
-            return response()->json([
-                'status' => true,
-                'message' => $message,
-            ], 200);
+            return ApiFormatter::response(true, $message);
         } else {
-            return response()->json([
-                "success" => false,
-                "message" => $message,
-            ], 422);  
+            return ApiFormatter::response(false, $message, 422);
         }
     }
 }
