@@ -37,7 +37,7 @@ class LoanController extends Controller
         // Validate request body
         list($valid, $errorsMsg) = $validator->validate($request);
         if (!$valid) {
-            return ApiFormatter::response(false, $errorsMsg, 422);
+            return ApiFormatter::response(false, $errorsMsg, 400);
         }
             
         // Create loan

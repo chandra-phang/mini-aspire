@@ -99,7 +99,7 @@ class LoanTest extends TestCase
         // Execute Store Loan API
         $body = [];
         $response = $this->actingAs($customer)->postJson(route('loan.store'), $body);
-        $response->assertStatus(422);
+        $response->assertStatus(400);
 
         // Assert response
         $res = $response->json();
