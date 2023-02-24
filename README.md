@@ -5,6 +5,7 @@ This app that allows authenticated users to go through a loan application. All t
 - Adding cash_balance in users table, so overpaid loan can still be stored in user account
 - Adding validation so approver can't approve their own loan 
 
+I have not added unit tests yet since I think the all functionality are already covered in feature tests.
 
 ### Run Locally
 
