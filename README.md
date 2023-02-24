@@ -40,6 +40,11 @@ DB_PORT=3306
 DB_DATABASE=mini-aspire
 DB_USERNAME=root
 DB_PASSWORD=
+
+TESTING_DB_DATABASE=mini-aspire-testing-env
+TESTING_DB_USERNAME=root
+TESTING_DB_PASSWORD=
+
 ```
 
 ### Run Migration
