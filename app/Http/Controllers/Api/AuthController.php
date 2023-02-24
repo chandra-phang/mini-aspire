@@ -3,51 +3,43 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Http\Requests\RegisterAuthRequest;
+use App\Http\Requests\LoginAuthRequest;
 use App\Helpers\ApiFormatter;
+use App\Services\AuthService;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    protected $authService;
+
+    public function __construct(AuthService $authService)
     {
-        // Validate request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users|max:255',
-            'password' => 'required|min:8',
-        ]);
-        // Return errors if validation error occur.
-        if ($validator->fails()) {
-            return ApiFormatter::response(false, $validator->errors(), 400);
-        }
-        // Check if validation pass then create user and auth token. Return the auth token
-        if ($validator->passes()) {
-            if ($request->isAdmin == null) {
-                $request['isAdmin'] = false;
-            }
-            User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'is_admin' => $request->isAdmin,
-                'password' => Hash::make($request->password)
-            ]);
-        
-            return ApiFormatter::response(true, 'User created successfully');
-        }
+        $this->authService = $authService;
     }
 
-    public function login(Request $request)
+    public function register(Request $request, RegisterAuthRequest $validator)
     {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return ApiFormatter::response(false, 'Invalid login details', 401);
+        // Validate request body
+        list($valid, $errorsMsg) = $validator->validate($request);
+        if (!$valid) {
+            return ApiFormatter::response(false, $errorsMsg, 400);
         }
-        $user = User::where('email', $request['email'])->firstOrFail();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        
+        $this->authService->createUser($request);
+        return ApiFormatter::response(true, 'User created successfully');
+    }
+
+    public function login(Request $request, LoginAuthRequest $validator)
+    {
+        // Validate request body
+        list($valid, $errorsMsg) = $validator->validate($request);
+        if (!$valid) {
+            return ApiFormatter::response(false, $errorsMsg, 401);
+        }
+
+        $token = $this->authService->createToken($request);
         return ApiFormatter::accessTokenResponse(true, $token);
     }
 

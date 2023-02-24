@@ -7,22 +7,30 @@ use Illuminate\Http\Request;
 use App\Helpers\ApiFormatter;
 use App\Http\Requests\PayScheduledRepaymentRequest;
 use App\Http\Controllers\Controller;
-use App\Models\ScheduledRepayment;
 use App\Services\ScheduledRepaymentService;
 
 class ScheduledRepaymentController extends Controller
 {
+    protected $currentUser;
+    protected $scheduledRepaymentService;
+
+    public function __construct(ScheduledRepaymentService $scheduledRepaymentService)
+    {
+        $this->currentUser = auth()->user();
+        $this->scheduledRepaymentService = $scheduledRepaymentService;
+    }
+
     // list ScheduledRepayment by customer_id
     public function index(Request $request)
     {
-        $userID = auth()->user()->id;
-        $scheduledRepayment = ScheduledRepayment::Where(['customer_id' => $userID])->get();
+        $userID = $this->currentUser->id;
+        $scheduledRepayments = $this->scheduledRepaymentService->getByCustomerId($userID);
 
-        return ApiFormatter::responseWithData(true, $scheduledRepayment);
+        return ApiFormatter::responseWithData(true, $scheduledRepayments);
     }
 
     // Admin approve specified ScheduledRepayment
-    public function pay(Request $request, string $id, ScheduledRepaymentService $service, PayScheduledRepaymentRequest $validator)
+    public function pay(Request $request, string $id, PayScheduledRepaymentRequest $validator)
     {
         // Validated request body
         list($valid, $errorMsg) = $validator->validate($request);
@@ -30,7 +38,7 @@ class ScheduledRepaymentController extends Controller
             return ApiFormatter::response(false, $errorMsg, 422);
         }
 
-        list($success, $message) = $service->pay($id, $request);
+        list($success, $message) = $this->scheduledRepaymentService->pay($id, $request);
 
         if ($success) {
             return ApiFormatter::response(true, $message);

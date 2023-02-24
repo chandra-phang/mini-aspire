@@ -9,6 +9,7 @@ class PayScheduledRepaymentRequest
 {
     public function validate(Request $request)
     {
+        // Validate request body
         $validator = Validator::make($request->all(), [
             'amount' => 'required'
         ]);

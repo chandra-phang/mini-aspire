@@ -2,21 +2,38 @@
 
 namespace App\Services;
 
-use Carbon\Carbon;
-
-use App\Models\Loan;
-use App\Models\ScheduledRepayment;
-use App\Models\User;
+use App\Repositories\LoanRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\ScheduledRepaymentRepository;
 
 class ScheduledRepaymentService
 {
+    protected $currentUser;
+    protected $loanRepository;
+    protected $userRepository;
+    protected $scheduledRepaymentRepository;
+
+    public function __construct(
+        LoanRepository $loanRepository,
+        UserRepository $userRepository,
+        ScheduledRepaymentRepository $scheduledRepaymentRepository)
+    {
+        $this->currentUser = auth()->user();
+        $this->loanRepository = $loanRepository;
+        $this->userRepository = $userRepository;
+        $this->scheduledRepaymentRepository = $scheduledRepaymentRepository;
+    }
+
+    public function getByCustomerId(string $customerId)
+    {
+        return $this->scheduledRepaymentRepository->findByCustomerId($customerId);
+    }
+
     public function pay(string $id, $data)
     {
         // Find ScheduledRepayment by id and customer_id
-        $scheduledRepayments = ScheduledRepayment::Where([
-            'id' => $id,
-            'customer_id' => auth()->user()->id,
-        ])->get();
+        $userId = $this->currentUser->id;
+        $scheduledRepayments = $this->scheduledRepaymentRepository->findByIdAndCustomerId($id, $userId);
 
         // Validate if ScheduledRepayment exist 
         if (count($scheduledRepayments) == 0) {
@@ -44,16 +61,12 @@ class ScheduledRepaymentService
         }
 
         // Update ScheduleRepayment status to PAID
-        $scheduledRepayment->Update([
-            'status' => 'PAID',
-            'paid_amount' => $data->amount,
-            'paid_at' => Carbon::now(),
-        ]);
+        $this->scheduledRepaymentRepository->pay($scheduledRepayment, $data->amount);
 
         // Update Customer cash_balance
-        $customer = User::Find($scheduledRepayment->customer_id);
+        $customer = $this->userRepository->findById($loan->customer_id);
         $cashBalance = $customer->cash_balance + $data->amount;
-        $customer->Update(['cash_balance' => $cashBalance]);
+        $this->userRepository->updateCashBalance($customer, $cashBalance);
 
         // Check if all ScheduledRepayments has been PAID
         // If yes, update loan status to PAID
@@ -67,7 +80,7 @@ class ScheduledRepaymentService
         }
 
         if ($isAllRepaymentsPaid) {
-            $loan->Update(['status' => 'PAID']);
+            $this->loanRepository->pay($loan);
         }
 
         return [true, "ScheduledRepayment paid successfully"];

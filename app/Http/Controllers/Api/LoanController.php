@@ -8,26 +8,34 @@ use App\Helpers\ApiFormatter;
 use App\Http\Requests\StoreLoanRequest;
 use App\Http\Controllers\Controller;
 use App\Services\LoanService;
-use App\Models\Loan;
 
 class LoanController extends Controller
 {
+    protected $loanService;
+    protected $currentUser;
+
+    public function __construct(LoanService $loanService)
+    {
+        $this->loanService = $loanService;
+        $this->currentUser = auth()->user();
+    }
+
     // Display a listing of the loans.
     public function admin_index()
     {
-        if (!auth()->user()->is_admin){
+        if (!$this->currentUser->is_admin){
             $message = "You are not authorized to access this page";
             return ApiFormatter::response(false, $message, 403);
         }
 
-        $loans = Loan::all();
+        $loans = $this->loanService->all();
         return ApiFormatter::responseWithData(true, $loans);
     }
 
     // Display a listing of the loans by customer_id.
     public function customer_index()
     {
-        $loans = Loan::Where('customer_id', auth()->user()->id)->get();
+        $loans = $this->loanService->getByCustomerId($this->currentUser->id);
         return ApiFormatter::responseWithData(true, $loans);
     }
 

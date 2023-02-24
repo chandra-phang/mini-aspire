@@ -5,25 +5,50 @@ namespace App\Services;
 use Carbon\Carbon;
 
 use App\Models\Loan;
-use App\Models\ScheduledRepayment;
-use App\Models\User;
+
+use App\Repositories\LoanRepository;
+use App\Repositories\UserRepository;
+use App\Repositories\ScheduledRepaymentRepository;
 
 class LoanService
 {
+    protected $currentUser;
+    protected $loanRepository;
+    protected $userRepository;
+    protected $scheduledRepaymentRepository;
+
+    public function __construct(
+        LoanRepository $loanRepository,
+        UserRepository $userRepository,
+        ScheduledRepaymentRepository $scheduledRepaymentRepository)
+    {
+        $this->currentUser = auth()->user();
+        $this->loanRepository = $loanRepository;
+        $this->userRepository = $userRepository;
+        $this->scheduledRepaymentRepository = $scheduledRepaymentRepository;
+    }
+
+    public function all()
+    {
+        return $this->loanRepository->all();
+    }
+
+    public function getByCustomerId(string $customerId)
+    {
+        return $this->loanRepository->findByCustomerId($customerId);
+    }
+
     public function create($data) : Loan
     {
-        $userID = auth()->user()->id;
-        $loan = Loan::Create([
-            'total_amount' => $data->total_amount,
-            'loan_term' => $data->loan_term,
-            'status' => 'PENDING',
-            'customer_id' => $userID,
-        ]);
+        $userID = $this->currentUser->id;
+        $data['customer_id'] = $userID;
+
+        $loan = $this->loanRepository->create($data);
 
         return $loan;
     }
 
-    public function createScheduledRepayment(Loan $loan)
+    public function createScheduledRepayment(Loan $loan) : void
     {
         $scheduledPayableAmount = $loan->total_amount/$loan->loan_term;
         $scheduledPayableAmount = round($scheduledPayableAmount, 2);
@@ -38,14 +63,14 @@ class LoanService
                 $scheduledPayableAmount = $loan->total_amount - ($i * $scheduledPayableAmount);
             };
 
-            ScheduledRepayment::Create([
+            $data = [
                 'loan_id' => $loan->id,
-                'customer_id' => auth()->user()->id,
+                'customer_id' => $this->currentUser->id,
                 'payable_amount' => $scheduledPayableAmount,
-                'paid_amount' => 0,
                 'due_date' => $dueDate,
-                'status' => 'PENDING',
-            ]);
+            ];
+
+            $this->scheduledRepaymentRepository->create($data);
         }
     }
 
@@ -53,13 +78,12 @@ class LoanService
     {
         $loan = null;
         // Admin allowed to see all loans but customer only can see their own loans
-        if (auth()->user()->is_admin) {
-            $loan = Loan::Find($id);
+        if ($this->currentUser->is_admin) {
+            $loan = $this->loanRepository->findById($id);
         } else {
-            $loans = Loan::Where([
-                'id' => $id,
-                'customer_id' => auth()->user()->id,
-            ])->get();
+            $customerId = $this->currentUser->id;
+            $loans = $this->loanRepository->findByIdAndCustomerId($id, $customerId);
+
             if (count($loans) > 0) {
                 $loan = $loans[0];
             }
@@ -69,20 +93,20 @@ class LoanService
 
     public function approve(string $id)
     {
-        if (!auth()->user()->is_admin){   
+        $user = $this->currentUser;
+
+        if (!$user->is_admin){   
             return [false, "You are not authorized to access this page"];
         }
 
-        $loans = Loan::Where('id', $id)->get();
         // Validate whether loan is exist 
-        if (count($loans) == 0) {
+        $loan = $this->loanRepository->findById($id);
+        if (!$loan) {
             return [false, "Loan not found"];
         }
 
-        $loan = $loans[0];
-
         // Validate customer and approver can't be same persone
-        if ($loan->customer_id == auth()->user()->id){
+        if ($loan->customer_id == $user->id){
             return [false, "You can't approve your own loan"];
         }
 
@@ -94,16 +118,12 @@ class LoanService
         } 
 
         // Update loan status to APPROVED
-        $loan->Update([
-            'approver_id' => auth()->user()->id,
-            'approved_at' => Carbon::now(),
-            'status' => 'APPROVED',
-        ]);
+        $this->loanRepository->approve($loan, $user->id);
 
-        // Update customer cash balance
-        $customer = User::Find($loan->customer_id);
+        // Update customer cash balance        
+        $customer = $this->userRepository->findById($loan->customer_id);
         $cashBalance = $customer->cash_balance - $loan->total_amount;
-        $customer->Update(['cash_balance' => $cashBalance]);
+        $this->userRepository->updateCashBalance($customer, $cashBalance);
 
         return [true, "Loan approved succesfully!"];
     }
