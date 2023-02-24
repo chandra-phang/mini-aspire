@@ -8,7 +8,6 @@ use App\Repositories\ScheduledRepaymentRepository;
 
 class ScheduledRepaymentService
 {
-    protected $currentUser;
     protected $loanRepository;
     protected $userRepository;
     protected $scheduledRepaymentRepository;
@@ -18,7 +17,6 @@ class ScheduledRepaymentService
         UserRepository $userRepository,
         ScheduledRepaymentRepository $scheduledRepaymentRepository)
     {
-        $this->currentUser = auth()->user();
         $this->loanRepository = $loanRepository;
         $this->userRepository = $userRepository;
         $this->scheduledRepaymentRepository = $scheduledRepaymentRepository;
@@ -32,7 +30,7 @@ class ScheduledRepaymentService
     public function pay(string $id, $data)
     {
         // Find ScheduledRepayment by id and customer_id
-        $userId = $this->currentUser->id;
+        $userId = auth()->user()->id;
         $scheduledRepayments = $this->scheduledRepaymentRepository->findByIdAndCustomerId($id, $userId);
 
         // Validate if ScheduledRepayment exist 

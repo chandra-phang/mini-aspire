@@ -12,18 +12,16 @@ use App\Services\LoanService;
 class LoanController extends Controller
 {
     protected $loanService;
-    protected $currentUser;
 
     public function __construct(LoanService $loanService)
     {
         $this->loanService = $loanService;
-        $this->currentUser = auth()->user();
     }
 
     // Display a listing of the loans.
     public function admin_index()
     {
-        if (!$this->currentUser->is_admin){
+        if (!auth()->user()->is_admin){
             $message = "You are not authorized to access this page";
             return ApiFormatter::response(false, $message, 403);
         }
@@ -35,7 +33,7 @@ class LoanController extends Controller
     // Display a listing of the loans by customer_id.
     public function customer_index()
     {
-        $loans = $this->loanService->getByCustomerId($this->currentUser->id);
+        $loans = $this->loanService->getByCustomerId(auth()->user()->id);
         return ApiFormatter::responseWithData(true, $loans);
     }
 

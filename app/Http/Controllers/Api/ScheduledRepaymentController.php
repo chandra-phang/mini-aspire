@@ -11,19 +11,17 @@ use App\Services\ScheduledRepaymentService;
 
 class ScheduledRepaymentController extends Controller
 {
-    protected $currentUser;
     protected $scheduledRepaymentService;
 
     public function __construct(ScheduledRepaymentService $scheduledRepaymentService)
     {
-        $this->currentUser = auth()->user();
         $this->scheduledRepaymentService = $scheduledRepaymentService;
     }
 
     // list ScheduledRepayment by customer_id
     public function index(Request $request)
     {
-        $userID = $this->currentUser->id;
+        $userID = auth()->user()->id;
         $scheduledRepayments = $this->scheduledRepaymentService->getByCustomerId($userID);
 
         return ApiFormatter::responseWithData(true, $scheduledRepayments);

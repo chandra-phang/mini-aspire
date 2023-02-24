@@ -12,7 +12,6 @@ use App\Repositories\ScheduledRepaymentRepository;
 
 class LoanService
 {
-    protected $currentUser;
     protected $loanRepository;
     protected $userRepository;
     protected $scheduledRepaymentRepository;
@@ -22,7 +21,6 @@ class LoanService
         UserRepository $userRepository,
         ScheduledRepaymentRepository $scheduledRepaymentRepository)
     {
-        $this->currentUser = auth()->user();
         $this->loanRepository = $loanRepository;
         $this->userRepository = $userRepository;
         $this->scheduledRepaymentRepository = $scheduledRepaymentRepository;
@@ -40,7 +38,7 @@ class LoanService
 
     public function create($data) : Loan
     {
-        $userID = $this->currentUser->id;
+        $userID = auth()->user()->id;
         $data['customer_id'] = $userID;
 
         $loan = $this->loanRepository->create($data);
@@ -65,7 +63,7 @@ class LoanService
 
             $data = [
                 'loan_id' => $loan->id,
-                'customer_id' => $this->currentUser->id,
+                'customer_id' => auth()->user()->id,
                 'payable_amount' => $scheduledPayableAmount,
                 'due_date' => $dueDate,
             ];
@@ -78,10 +76,10 @@ class LoanService
     {
         $loan = null;
         // Admin allowed to see all loans but customer only can see their own loans
-        if ($this->currentUser->is_admin) {
+        if (auth()->user()->is_admin) {
             $loan = $this->loanRepository->findById($id);
         } else {
-            $customerId = $this->currentUser->id;
+            $customerId = auth()->user()->id;
             $loans = $this->loanRepository->findByIdAndCustomerId($id, $customerId);
 
             if (count($loans) > 0) {
@@ -93,7 +91,7 @@ class LoanService
 
     public function approve(string $id)
     {
-        $user = $this->currentUser;
+        $user = auth()->user();
 
         if (!$user->is_admin){   
             return [false, "You are not authorized to access this page"];
