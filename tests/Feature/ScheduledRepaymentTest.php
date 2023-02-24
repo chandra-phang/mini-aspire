@@ -22,9 +22,12 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
+        // Execute List ScheduledRepayment API
         $response = $this->actingAs($customer)->getJson(route('scheduled-repayment.list'));
-        $res = $response->json();
+        $response->assertStatus(200);
 
+        // Assert response
+        $res = $response->json();
         $this->assertEquals(true, $res['success']);
         $this->assertEquals(2, count($res['data']));
     }
@@ -39,12 +42,13 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
-        $res = $response->json();
+        $response->assertStatus(200);
 
         // Assert response
+        $res = $response->json();
         $this->assertEquals(true, $res['success']);
         $this->assertEquals("ScheduledRepayment paid successfully", $res['message']);
 
@@ -70,17 +74,18 @@ class ScheduledRepaymentTest extends TestCase
             'loan_id' => $loan->id,
             'customer_id' => $customer->id,
         ]);
-        $scheduledRepayment2 = ScheduledRepayment::factory()->create([
+        ScheduledRepayment::factory()->create([
             'loan_id' => $loan->id,
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
-        $res = $response->json();
-
+        $response->assertStatus(200);
+        
         // Assert response
+        $res = $response->json();
         $this->assertEquals(true, $res['success']);
         $this->assertEquals("ScheduledRepayment paid successfully", $res['message']);
 
@@ -99,12 +104,13 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => 'invalid-id']), $body);
-        $res = $response->json();
+        $response->assertStatus(422);
 
         // Assert response
+        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("ScheduledRepayment not found", $res['message']);
     }
@@ -119,12 +125,13 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
-        $res = $response->json();
+        $response->assertStatus(422);
 
         // Assert response
+        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("Loan not approved yet", $res['message']);
     }
@@ -139,12 +146,14 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
-        $res = $response->json();
+        $response->assertStatus(422);
+        
 
         // Assert response
+        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("Loan is already PAID", $res['message']);
     }
@@ -159,12 +168,13 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 1000];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
-        $res = $response->json();
+        $response->assertStatus(422);
 
         // Assert response
+        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("ScheduledRepayment is already PAID", $res['message']);
     }
@@ -179,12 +189,13 @@ class ScheduledRepaymentTest extends TestCase
             'customer_id' => $customer->id,
         ]);
 
-        // Pay scheduledPayment
+        // Execute Pay ScheduledRepayment API
         $body = ['amount' => 100];
         $response = $this->actingAs($customer)->postJson(route('scheduled-repayment.pay', ['id' => $scheduledRepayment->id]), $body);
-        $res = $response->json();
+        $response->assertStatus(422);
 
         // Assert response
+        $res = $response->json();
         $this->assertEquals(false, $res['success']);
         $this->assertEquals("Amount is not enough", $res['message']);
     }

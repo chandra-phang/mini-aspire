@@ -17,7 +17,7 @@ class LoanController extends Controller
     {
         if (!auth()->user()->is_admin){
             $message = "You are not authorized to access this page";
-            return ApiFormatter::response(false, $message, 401);
+            return ApiFormatter::response(false, $message, 403);
         }
 
         $loans = Loan::all();
@@ -48,7 +48,7 @@ class LoanController extends Controller
 
         // Create ScheduledRepayment
         $service->createScheduledRepayment($loan);
-        return ApiFormatter::responseWithData(true, $loan);
+        return ApiFormatter::responseWithData(true, $loan, 201);
     }
 
     // Display the specified loan.
