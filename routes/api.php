@@ -1,10 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LoanController;
-use App\Http\Controllers\ScheduledRepaymentController;
+use App\Http\Controllers\Api\LoanController;
+use App\Http\Controllers\Api\ScheduledRepaymentController;
 use App\Http\Controllers\Api\AuthController;
-use App\Models\ScheduledRepayment;
 
 /*
 |--------------------------------------------------------------------------

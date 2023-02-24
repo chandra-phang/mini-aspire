@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
 
 use App\Helpers\ApiFormatter;
 use App\Http\Requests\StoreLoanRequest;
+use App\Http\Controllers\Controller;
 use App\Services\LoanService;
 use App\Models\Loan;
-
 
 class LoanController extends Controller
 {
