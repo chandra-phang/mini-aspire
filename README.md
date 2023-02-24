@@ -31,7 +31,7 @@ Before running this application please make sure you have these dependencies ins
 ```
 
 ### Setup DB
-After all dependencies are installed, you need to create new database based on `.env`
+After all dependencies are installed, you need to create two new databases based on `.env`
 
 ```
 DB_CONNECTION=mysql
