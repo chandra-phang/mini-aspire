@@ -1,5 +1,5 @@
 
-# Mini Aspire API
+# Loan API
 
 This app that allows authenticated users to go through a loan application. All the loans will be assumed to have a “weekly” repayment frequency. I am adding few ideas to make this app more reasonal for me. 
 - Adding cash_balance in users table, so overpaid loan can still be stored in user account
