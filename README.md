@@ -1,11 +1,9 @@
 
 # Mini Aspire API
 
-This app that allows authenticated users to go through a loan application. All the loans will be assumed to have a “weekly” repayment frequency. I am adding few ideas to make this app more reasonal for me. 
+This app will allows authenticated users to go through a loan application. All the loans will be assumed to have a “weekly” repayment frequency.
 - Adding cash_balance in users table, so overpaid loan can still be stored in user account
-- Adding validation so approver can't approve their own loan 
-
-I have not added unit tests yet since I think the all functionality are already covered in feature tests.
+- Adding validation so approver can't approve their own loan
 
 ### Run Locally
 
@@ -50,7 +48,7 @@ TESTING_DB_PASSWORD=
 
 ### Run Migration
 ```
-php artisan migrate 
+php artisan migrate
 ```
 
 ### Seed Records
@@ -60,7 +58,7 @@ php artisan db:seed
 
 ### Run Locally
 ```
-php artisan serve 
+php artisan serve
 ```
 
 ### Running Test
